@@ -53,18 +53,18 @@
 <header>
   <div class="eyebrow">Mail Helper Starter Kit</div>
   <h1>信箱小幫手 起始包｜教學手冊</h1>
-  <p class="lead">把這個資料夾丟給 Claude，回答幾個問題，它幫你建一個「每天幫你看信、分類、寫摘要」的助理。</p>
+  <p class="lead">把這個資料夾丟給 Claude，回答幾個問題，它幫你建一個「每天幫你看信、分類、貼標籤、寫摘要」的助理。</p>
 </header>
 
 <nav>
   <ol>
     <li><a href="#s1">它會幫你做什麼、不會做什麼</a></li>
-    <li><a href="#s2">三步建置</a></li>
+    <li><a href="#s2">四步建置</a></li>
     <li><a href="#s3">要準備的兩張 Excel</a></li>
     <li><a href="#s4">訪談會問什麼</a></li>
-    <li><a href="#s5">兩條路線怎麼選</a></li>
-    <li><a href="#s6">路線 1 安裝步驟</a></li>
-    <li><a href="#s7">路線 3 安裝步驟</a></li>
+    <li><a href="#s5">兩個版本怎麼選</a></li>
+    <li><a href="#s6">簡易版安裝步驟</a></li>
+    <li><a href="#s7">進階版安裝步驟</a></li>
     <li><a href="#s8">之後怎麼補充、怎麼關掉</a></li>
     <li><a href="#s9">安全與隱私</a></li>
     <li><a href="#s10">資料夾地圖</a></li>
@@ -79,30 +79,31 @@
       <ul>
         <li>看新進的信，含垃圾信匣裡疑似漏掉的</li>
         <li>依你的工作分類：哪個專案、哪個階段、誰寄的、急不急</li>
-        <li>寄一封摘要報告給你：還沒回的排前面、附一句建議、待辦追蹤</li>
+        <li>整理成一份摘要報告：還沒回的排前面、附一句建議</li>
         <li>提醒「該來沒來」：時間到了還沒收到的名單或文件</li>
-        <li>你允許的話，在 Gmail 幫信貼上「它自己的」標籤（目前限路線 1）</li>
+        <li>你允許的話，在 Gmail 幫信貼上「小幫手/」開頭的專用標籤</li>
       </ul>
     </div>
     <div class="card">
       <h4 class="no">不會做（永遠不會）</h4>
       <ul class="no">
-        <li>替你回信、寄信給任何人</li>
-        <li>動你手動貼的標籤、標已讀、刪信、移動信件</li>
-        <li>把信件內容傳給你以外的人</li>
+        <li>替你回信、寄信給別人</li>
+        <li>動你手動貼的標籤、把信標成已讀、刪信、移動信件</li>
+        <li>替你擬回信草稿（這一版不提供）</li>
       </ul>
     </div>
   </div>
 </section>
 
 <section id="s2">
-  <h2>二、三步建置</h2>
+  <h2>二、四步建置</h2>
   <ol class="steps">
     <li><b>把整個資料夾拖進 Claude</b>Cowork 或 Claude Code 都可以。<span class="check">Claude 主動說「這是信箱小幫手起始包，準備好就說『開始建置』」。</span></li>
     <li><b>說「開始建置」，回答 8 題（約 5 分鐘）</b>每題有選項，也可以自己講；第 4、5 題可以用兩張 Excel 代替口述。<span class="check">Claude 把產出的檔案逐項念給你確認。</span></li>
-    <li><b>照它給的安裝檢查清單連信箱、設排程</b>跑第一輪、看報告，不滿意就說「補充：…」再跑。<span class="check">收到第一封【信箱報告】。</span></li>
+    <li><b>到 Claude 網頁版連上 Gmail、建一個排程</b>把它產出的「網頁排程指示」整段貼進去。<span class="check">排程建立成功，出現在 Scheduled 清單。</span></li>
+    <li><b>先手動跑一次，滿意後改成定時</b>看報告合不合理，不滿意就回來說「補充：…」再改。<span class="check">報告的分類符合你的工作；Gmail 裡的信還是未讀。</span></li>
   </ol>
-  <div class="tip">訪談與產出設定完全不需要信箱權限。連信箱是安裝步驟，由你本人操作。</div>
+  <div class="tip">訪談與產出設定完全不需要信箱權限。連信箱與建排程由你本人操作。</div>
 </section>
 
 <section id="s3">
@@ -111,10 +112,10 @@
   <h3>對接對象清單.xlsx</h3>
   <table>
     <tr><th>欄位</th><th>填什麼</th><th>小幫手拿來做什麼</th></tr>
-    <tr><td>單位、聯絡人</td><td>跟你往來的人或單位</td><td>報告卡片顯示「誰寄的」</td></tr>
+    <tr><td>單位、聯絡人</td><td>跟你往來的人或單位</td><td>報告顯示「誰寄的」</td></tr>
     <tr><td>email</td><td>對方的信箱或網域</td><td>認出寄件人，歸到對的專案</td></tr>
-    <tr><td>所屬業務線</td><td>要跟《專案階段表》的業務線名稱一致</td><td>第一層分類</td></tr>
-    <tr><td>習慣／注意</td><td>你希望被提醒的一句話（來信要 CC 某人、常漏附件、常用私人信箱寄）</td><td>報告卡片加一句提醒</td></tr>
+    <tr><td>所屬業務線</td><td>要跟《專案階段表》的業務線名稱一致</td><td>第一層分類，也是標籤名稱</td></tr>
+    <tr><td>習慣／注意</td><td>你希望被提醒的一句話（來信要 CC 某人、常漏附件、常用私人信箱寄）</td><td>報告裡加一句提醒</td></tr>
     <tr><td>階段N_…</td><td>可改成你自己的階段名；填該對象目前狀態，不填也可以</td><td>追蹤進度、該來沒來</td></tr>
   </table>
   <h3>專案階段表.xlsx</h3>
@@ -132,66 +133,67 @@
   <h2>四、訪談會問什麼</h2>
   <table>
     <tr><th>#</th><th>問題</th><th>答案會變成</th></tr>
-    <tr><td>1</td><td>你是誰、工作主要在做什麼</td><td>報告寄件名、助理的自我介紹</td></tr>
-    <tr><td>2</td><td>掃哪個信箱、一人用還是多人共用</td><td>收件人、工作區數</td></tr>
-    <tr><td>3</td><td>手上有哪幾條業務線、各自週期</td><td>第一層分類</td></tr>
+    <tr><td>1</td><td>你是誰、工作主要在做什麼</td><td>助理的自我介紹</td></tr>
+    <tr><td>2</td><td>整理哪個信箱、一人用還是多人共用</td><td>報告寄給誰</td></tr>
+    <tr><td>3</td><td>手上有哪幾條業務線、各自週期</td><td>第一層分類、標籤名稱</td></tr>
     <tr><td>4</td><td>每條線的階段、該收到什麼<span class="pill">可用 Excel</span></td><td>第二層分類、該來沒來提醒</td></tr>
     <tr><td>5</td><td>誰會寄信來、對接對象與習慣<span class="pill">可用 Excel</span></td><td>寄件人辨識、習慣提醒</td></tr>
     <tr><td>6</td><td>哪些信最想先看、哪些一句帶過、急件怎麼定義</td><td>優先序規則</td></tr>
-    <tr><td>7</td><td>報告多久寄、幾點、寄給誰、什麼風格</td><td>排程、收件人、配色</td></tr>
-    <tr><td>8</td><td>授權邊界：唯讀／貼標籤</td><td>安全設定（預設完全唯讀）</td></tr>
-    <tr><td>＋</td><td>要貼標籤嗎？電腦常開嗎？</td><td>路線 1 或 3</td></tr>
+    <tr><td>7</td><td>報告多久一次、幾點、怎麼送</td><td>排程時間、報告送達方式</td></tr>
+    <tr><td>8</td><td>完全唯讀，還是貼小幫手專用標籤</td><td>要不要貼標籤</td></tr>
+    <tr><td>＋</td><td>簡易版還是進階版</td><td>產哪一套安裝檔案</td></tr>
   </table>
   <p>沒講到的分類邏輯，小幫手一律寫「請人工判斷」，不會自己補。</p>
 </section>
 
 <section id="s5">
-  <h2>五、兩條路線怎麼選</h2>
+  <h2>五、兩個版本怎麼選</h2>
   <table>
-    <tr><th></th><th>路線 1：雲端完整版</th><th>路線 3：桌面輕量版 <span class="pill warn">實測中</span></th></tr>
-    <tr><td>一句話</td><td>住在雲端，24 小時自己跑</td><td>住在你電腦裡，Claude app 開著才跑</td></tr>
-    <tr><td>能做什麼</td><td>摘要報告＋分類＋<b>貼標籤到信上</b></td><td>摘要報告＋分類；<b>標籤目前先寫在報告裡建議</b>（能否直接貼到信上查證中）</td></tr>
-    <tr><td>電腦關機時</td><td>照跑</td><td>不跑，下次開機補跑</td></tr>
-    <tr><td>建置</td><td>7 步，約 1～2 小時</td><td>3 步，約 10 分鐘</td></tr>
-    <tr><td>要會什麼</td><td>照手冊操作，不用會寫程式，但要不怕陌生名詞</td><td>會用 Claude app 就好</td></tr>
-    <tr><td>資安</td><td>AI 拿到信箱憑證；憑證只放自己的 GitHub 私人 repo 與 routine 環境變數</td><td>授權走 Google 官方登入，沒有憑證檔可外流；AI 一樣讀得到信全文</td></tr>
-    <tr><td>適合誰</td><td>信量大、要靠標籤篩、想全自動</td><td>先試試看、每天本來就開著 Claude</td></tr>
-    <tr><td>之後升級</td><td>已是完整版</td><td>訪談答案沿用，補做 7 步即升級</td></tr>
+    <tr><th></th><th>簡易版：網頁排程 <span class="pill">建議</span></th><th>進階版：雲端程式</th></tr>
+    <tr><td>一句話</td><td>在 Claude 網頁版連上 Gmail、建一個排程就好</td><td>自己架一套程式，在雲端定時跑</td></tr>
+    <tr><td>能做什麼</td><td>摘要報告＋分類＋<b>貼標籤</b></td><td>摘要報告＋分類＋<b>貼標籤</b></td></tr>
+    <tr><td>建置</td><td>4 步，約 10 到 15 分鐘</td><td>7 步，約 1 到 2 小時</td></tr>
+    <tr><td>要會什麼</td><td>會用瀏覽器就好</td><td>照手冊操作，不用會寫程式，但要不怕陌生名詞</td></tr>
+    <tr><td>要裝什麼</td><td>不用裝任何東西</td><td>Python（只用一次）、GitHub 帳號</td></tr>
+    <tr><td>信箱授權</td><td>Google 官方登入畫面，隨時可在 Claude 設定裡中斷</td><td>自己保管一組憑證，等於信箱鑰匙</td></tr>
+    <tr><td>安全把關</td><td>靠排程指示裡寫明的禁止事項</td><td>程式只允許白名單內的收件人與標籤，超出就報錯</td></tr>
+    <tr><td>成熟度</td><td>2026-10-05 以測試信箱驗證：排程裡讀信、貼標籤可行；長期定時執行還在觀察</td><td>已實際運作中（2026-07 起）</td></tr>
+    <tr><td>適合誰</td><td>多數人</td><td>想要程式層級把關、自訂報告版型，或單位不開放連接器的人</td></tr>
   </table>
-  <pre>你希望小幫手直接在 Gmail 幫信貼標籤嗎？
-   ├─ 要 ──────────────────────────────► 路線 1
-   └─ 不用，報告裡告訴我就好
-         │
-         你的電腦平常整天開著、Claude app 也開著嗎？
-            ├─ 是 ─────────────────────► 路線 3（新手建議從這裡開始）
-            └─ 不一定 ─────────────────► 路線 1，或接受路線 3「開機才跑」</pre>
-  <p class="no">路線 3 能不能貼標籤：2026-10-05 查到 Claude 的 Gmail 連接器工具清單已列出貼標籤功能，但我們還沒在真實信箱測過，所以先當作只在報告裡建議。雲端排程目前拿不到連接器，路線 3 只能用桌面排程。</p>
+  <pre>先用簡易版。
+遇到下面任何一種情況，再考慮進階版：
+   ├─ 單位的信箱不允許連接 Claude 的 Gmail 連接器
+   ├─ 想要「程式強制擋下」白名單以外的收件人與標籤，不只靠指示約束
+   └─ 想要固定版型的 HTML 報告，或同一個信箱要寄給多位同事各一份</pre>
+  <p class="no">訪談答案兩個版本共用，之後要換不用重答。</p>
 </section>
 
 <section id="s6">
-  <h2>六、路線 1 安裝步驟（雲端完整版）</h2>
-  <p>需要：自己的 Claude 帳號（Pro 以上）、自己的 GitHub 帳號（免費版）、要掃描的 Google 信箱、一台有 Python 3 的電腦（只在步驟 3 用一次）。完整細節見 <code>路線1_雲端完整版/安裝手冊.md</code>。</p>
+  <h2>六、簡易版安裝步驟（網頁排程）<span class="pill">建議</span></h2>
+  <p>需要：自己的 Claude 付費帳號、要整理的 Google 信箱。只用瀏覽器，不用安裝任何程式。完整細節見 <code>簡易版_網頁排程/安裝手冊.md</code>。</p>
   <ol class="steps">
-    <li><b>Google Cloud 建 OAuth 憑證</b>用要掃描的信箱登入 console.cloud.google.com：新增專案 → 啟用 Gmail API → OAuth 同意畫面（外部、發布為正式版）→ 建「電腦版應用程式」憑證。<span class="check">拿到用戶端 ID 與用戶端密碼；發布狀態顯示「正式版」（停在測試中，授權 7 天就失效）。</span></li>
-    <li><b>訪談產出設定</b>就是第二節的三步，精靈已幫你做完。<span class="check"><code>設定/</code> 裡有 config.json、routine-prompt.md、report_template.html 與 <code>路線1_上傳包/</code>。</span></li>
-    <li><b>取得 refresh token</b>在 <code>路線1_雲端完整版/</code> 開終端機跑 <code>get_refresh_token.py</code>，瀏覽器登入要掃描的信箱、允許。<span class="check">終端機印出 GMAIL_REFRESH_TOKEN=…，抄起來，這串等於信箱鑰匙。</span></li>
-    <li><b>推上自己的 GitHub 私人 repo</b>github.com 新增 repository，選 Private，把 <code>設定/路線1_上傳包/</code> 裡的檔案全部拖上去（程式與設定已排在同一層）。<span class="check">repo 顯示 Private；<b>沒有</b>上傳 .env 或任何含 token 的檔案。</span></li>
-    <li><b>建雲端 routine</b>claude.ai/code → Routines → 新增：貼 routine-prompt.md 的「Prompt 全文」、連接 repo、設 cron（UTC＝台灣時間減 8）、填四個環境變數、Network access 加 gmail.googleapis.com 與 oauth2.googleapis.com。<span class="check">routine 頁面顯示 Active。</span></li>
-    <li><b>測試</b>按 Run now。<span class="check">收到報告；信箱裡的信仍未讀、標籤沒被動（若啟用自動標籤，只多了白名單標籤）。</span></li>
-    <li><b>不滿意就改</b>對 Claude 說「補充：…」，改完重新上傳 GitHub＋更新 routine prompt。<span class="check">第二次報告符合預期。</span></li>
+    <li><b>連接 Gmail</b>開 claude.ai，左側 Customize，再點 Connectors，找到 Gmail 按「＋」。第一次使用時按 Connect，在 Google 視窗選要整理的信箱並允許。<span class="check">開新對話問「目前連接的信箱地址」，回答是你要整理的那個信箱。</span></li>
+    <li><b>完成訪談</b>就是第二節的前兩步，版本選簡易版。<span class="check"><code>設定/網頁排程指示.md</code> 看得到你的業務線，沒有殘留的【】。</span></li>
+    <li><b>建立排程，先手動跑一次</b>claude.ai 左側 Scheduled，New task，Set up manually。Instructions 貼上指示全文，Frequency 先選 Manual，Save 後按 Run now。<span class="check">History 多一筆；報告分類合理；Gmail 裡的信還是未讀；除了「小幫手/」開頭的標籤，其他標籤都沒被動到。</span></li>
+    <li><b>改成定時</b>編輯排程，Frequency 改 Weekdays 或 Daily 並設時間。一天要跑兩三次，就各建一個排程。<span class="check">排程清單顯示你設定的時間；時間到之後 History 多一筆。</span></li>
   </ol>
-  <div class="note">第一次多半卡在步驟 1，Google 的介面常改版。卡住時把畫面截圖給 Claude，它會對照手冊指路。</div>
+  <div class="tip">開了貼標籤後，Gmail 左側會多一個「小幫手」，底下收著「已整理」與各業務線的子標籤。上層的「小幫手」是 Gmail 自動產生的，屬正常現象。</div>
+  <div class="note">排程用「自動核准」執行，不會停下來問你。指示請用起始包產出的版本，不要自己加上「順便幫我回信」之類的要求。</div>
 </section>
 
 <section id="s7">
-  <h2>七、路線 3 安裝步驟（桌面輕量版）<span class="pill warn">實測中</span></h2>
-  <p>需要：自己的 Claude 帳號（Pro 以上）、Claude 桌面 app、要掃描的 Google 信箱。限制先講清楚：電腦與 Claude app 要開著才會跑；標籤目前先寫在報告裡建議。</p>
+  <h2>七、進階版安裝步驟（雲端程式）</h2>
+  <p>需要：自己的 Claude 付費帳號、自己的 GitHub 帳號（免費版）、要整理的 Google 信箱、一台有 Python 3 的電腦（只在步驟 3 用一次）。完整細節見 <code>進階版_雲端程式/安裝手冊.md</code>。</p>
   <ol class="steps">
-    <li><b>在 Claude 連接 Gmail</b>Claude 桌面 app → 設定 → 連接器 → Gmail → 用要掃描的信箱登入、允許。<span class="check">連接器清單裡 Gmail 顯示已連接。</span></li>
-    <li><b>跑一次唯讀測試</b>開 Cowork，工作資料夾選這個起始包，對它說「照 設定/桌面排程prompt.md 用唯讀模式跑一輪，不要寄信」。<span class="check"><code>報告/</code> 多一個 HTML；信仍未讀、標籤沒動。</span></li>
-    <li><b>設桌面排程</b>Claude 桌面 app → 排程任務 → 新增：工作資料夾＝起始包、貼 prompt 全文、設時間。<span class="check">到時間 <code>報告/</code> 有新檔（若設了寄出，收件匣收到報告）。</span></li>
+    <li><b>Google Cloud 建 OAuth 憑證</b>用要整理的信箱登入 console.cloud.google.com：新增專案，啟用 Gmail API，OAuth 同意畫面選外部並發布為正式版，建「電腦版應用程式」憑證。<span class="check">拿到用戶端 ID 與用戶端密碼；發布狀態顯示「正式版」（停在測試中，授權 7 天就失效）。</span></li>
+    <li><b>完成訪談</b>版本選進階版，精靈會產出設定與上傳包。<span class="check"><code>設定/</code> 裡有 config.json、routine-prompt.md、report_template.html 與 <code>進階版_上傳包/</code>。</span></li>
+    <li><b>取得 refresh token</b>在 <code>進階版_雲端程式/</code> 開終端機跑 <code>get_refresh_token.py</code>，瀏覽器登入要整理的信箱、允許。<span class="check">終端機印出 GMAIL_REFRESH_TOKEN=…，抄起來，這串等於信箱鑰匙。</span></li>
+    <li><b>推上自己的 GitHub 私人 repo</b>github.com 新增 repository，選 Private，把 <code>設定/進階版_上傳包/</code> 裡的檔案全部拖上去。<span class="check">repo 顯示 Private；<b>沒有</b>上傳 .env 或任何含 token 的檔案。</span></li>
+    <li><b>建雲端 routine</b>claude.ai/code 的 Routines 新增：貼 routine-prompt.md 的指示全文、連接 repo、設 cron（UTC＝台灣時間減 8）、填四個環境變數、Network access 加 gmail.googleapis.com 與 oauth2.googleapis.com。<span class="check">routine 頁面顯示 Active。</span></li>
+    <li><b>測試</b>按 Run now。<span class="check">收到報告；信箱裡的信仍未讀；若啟用自動標籤，只多了白名單內的標籤。</span></li>
+    <li><b>不滿意就改</b>對 Claude 說「補充：…」，改完重新上傳 GitHub 並更新 routine 的指示。<span class="check">第二次報告符合預期。</span></li>
   </ol>
-  <div class="note">這條路線依 Claude 官方文件設計，尚未在真實環境跑過。卡住請回報，實測通過後這個標記會拿掉。</div>
+  <div class="note">第一次多半卡在步驟 1，Google 的介面常改版。卡住時把畫面截圖給 Claude，它會對照手冊指路。</div>
 </section>
 
 <section id="s8">
@@ -201,20 +203,21 @@
     <tr><td>窗口換人、新增對象</td><td>改 <code>對接對象清單.xlsx</code>，對 Claude 說「重新讀工作脈絡」；或直接說「補充：○○的窗口換成王小姐」</td></tr>
     <tr><td>新增階段、改時間</td><td>改 <code>專案階段表.xlsx</code>，說「重新讀工作脈絡」</td></tr>
     <tr><td>改急件定義、改優先序</td><td>說「以後廠商報價信算急件」，它只改分類規則</td></tr>
-    <tr><td>換路線</td><td>說「換成路線 1」或「換成路線 3」，訪談答案沿用</td></tr>
-    <tr><td>路線 1 改完規則</td><td>要重新上傳 GitHub＋更新 routine prompt（Claude 會提醒）</td></tr>
-    <tr><td>報告沒寄來</td><td>路線 1：routine 頁面看 Runs，可 Run now 補發。路線 3：電腦或 app 沒開，開起來手動跑一次即可</td></tr>
-    <tr><td>不想用了</td><td>路線 1：關 routine＋到 myaccount.google.com/permissions 移除授權。路線 3：刪排程任務＋設定裡中斷 Gmail</td></tr>
+    <tr><td>規則改完之後</td><td>簡易版：到排程把 Instructions 整段換成新的指示。進階版：重新上傳 GitHub 並更新 routine 的指示</td></tr>
+    <tr><td>換版本</td><td>說「換成進階版」或「換成簡易版」，訪談答案沿用</td></tr>
+    <tr><td>排程沒跑、報告沒來</td><td>簡易版：到 Scheduled 看排程是不是 Active、History 有沒有錯誤。進階版：routine 頁面看 Runs，可 Run now 補發</td></tr>
+    <tr><td>想暫停</td><td>簡易版：Frequency 改回 Manual。進階版：關掉 routine 的 Active</td></tr>
+    <tr><td>不想用了</td><td>簡易版：刪除排程（執行紀錄會一起刪除）、在 Connectors 中斷 Gmail、到 Gmail 刪掉「小幫手」標籤。進階版：關 routine，到 myaccount.google.com/permissions 移除授權</td></tr>
   </table>
 </section>
 
 <section id="s9">
   <h2>九、安全與隱私</h2>
   <div class="grid">
-    <div class="card"><h4>用自己的帳號</h4><p>自己的 Claude 帳號、自己的信箱、自己的 GitHub。共用帳號跑＝把信箱給共用帳號的每個人看。</p></div>
-    <div class="card"><h4>憑證是鑰匙</h4><p>路線 1 的 refresh token 等於信箱鑰匙，只放自己的私人 repo 與 routine 環境變數，不要跟同事共用。</p></div>
+    <div class="card"><h4>用自己的帳號</h4><p>Gmail 連上後，用同一個 Claude 帳號的人都能透過 Claude 讀寫這個信箱。個人信箱不要連到多人共用的 Claude 帳號。</p></div>
+    <div class="card"><h4>只用專用標籤</h4><p>小幫手只會新增或移除「小幫手/」開頭的標籤，不碰你手動貼的標籤，也不會把信標成已讀。</p></div>
     <div class="card"><h4>資料夾不外傳</h4><p><code>我的工作脈絡/</code> 與 <code>設定/</code> 是你的工作筆記與聯絡資料。要分享起始包給別人，先把這兩個資料夾清空。</p></div>
-    <div class="card"><h4>預設最保守</h4><p>唯讀、不貼標籤；你明確開才開。這一版不提供擬回信草稿，也永遠沒有「自動寄出回信」這個選項。</p></div>
+    <div class="card"><h4>不替你發言</h4><p>不回信、不寄信給別人、不擬草稿。報告只寄給你自己。進階版的憑證等於信箱鑰匙，不要跟同事共用。</p></div>
   </div>
 </section>
 
@@ -222,18 +225,17 @@
   <h2>十、資料夾地圖</h2>
   <pre>信箱小幫手_起始包/
 ├── 教學手冊.html                 本頁
-├── 開始之前請讀我.md              一頁版摘要
+├── README.md / 開始之前請讀我.md  一頁版摘要
 ├── CLAUDE.md                     AI 的啟動指令（你不用動）
-├── .claude/skills/mail-setup-wizard/  訪談精靈（題庫、路線利弊、產出規格）
+├── .claude/skills/mail-setup-wizard/  訪談精靈（題庫、版本比較、產出規格）
 ├── 我的工作脈絡/                  你填的兩張 Excel；訪談後多出 工作脈絡.md、分類規則.md
-├── 設定/                         訪談產出：config.json、報告版型、prompt、安裝檢查清單
-├── 路線1_雲端完整版/              程式、安裝手冊、模板
-├── 路線3_桌面輕量版/              prompt 模板、安裝手冊
-├── 報告/                         路線 3 的報告輸出位置
-└── 範例_計畫承辦人版/             假資料跑完整輪的示範產出，看長相用</pre>
+├── 設定/                         訪談產出：網頁排程指示.md、安裝檢查清單.md（進階版另有設定檔與上傳包）
+├── 簡易版_網頁排程/               排程指示範本、安裝手冊
+├── 進階版_雲端程式/               程式、安裝手冊、範本
+└── 範例_計畫承辦人版/             虛構資料跑完整輪的示範產出，看長相用</pre>
 </section>
 
-<footer>信箱小幫手 起始包 v0.1.2｜2026-10-05｜前身為兩個計畫共用信箱的分流系統（2026-07 起運作）。本手冊與 <code>開始之前請讀我.md</code>、兩條路線的安裝手冊內容同步，以 Markdown 版為正本。</footer>
+<footer>信箱小幫手 起始包 v0.2｜2026-10-05｜進階版前身為兩個計畫信箱的分流系統（2026-07 起運作）。本手冊與 <code>開始之前請讀我.md</code>、兩個版本的安裝手冊內容同步，以 Markdown 版為正本。</footer>
 </div>
 </body>
 </html>

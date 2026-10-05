@@ -7,7 +7,7 @@
 ## 你第一件要做的事
 
 1. 讀 `.claude/skills/mail-setup-wizard/SKILL.md`，照裡面的流程走。
-2. 看 `設定/` 裡有沒有 `config.json`：
+2. 看 `我的工作脈絡/工作脈絡.md` 存不存在（訪談完才會有這個檔）：
    - **沒有** → 這是首次啟動。主動說：「這是信箱小幫手起始包，我會問你幾個問題（約 5 分鐘）幫你建一個專屬的信箱摘要助理。準備好就說『開始建置』。」
    - **有** → 已建置。問使用者要做什麼：跑一輪唯讀檢視、補充工作脈絡、改規則、或處理維運問題。
 3. 使用者說「開始建置」「幫我設定信箱小幫手」→ 進入訪談。
@@ -26,14 +26,14 @@
 ```
 信箱小幫手_起始包/
 ├── CLAUDE.md                      ← 本檔（AI 啟動指令）
-├── 開始之前請讀我.md               ← 給人看的一頁說明
+├── README.md / 開始之前請讀我.md   ← 給人看的一頁說明
 ├── 教學手冊.html                  ← 給人看的完整版（雙擊開）
-├── .claude/skills/mail-setup-wizard/  ← 訪談精靈（SKILL.md＋題庫、路線利弊、產出規格）
+├── .claude/skills/mail-setup-wizard/  ← 訪談精靈（SKILL.md＋題庫、版本比較、產出規格）
 ├── 我的工作脈絡/                   ← 使用者的工作脈絡：對接對象清單.xlsx、專案階段表.xlsx（含範例）
 │                                     訪談後多出：工作脈絡.md、分類規則.md
-├── 設定/                          ← 訪談產出：config.json、report_template.html、
-│                                     routine-prompt.md（路線 1）或 桌面排程prompt.md（路線 3）
-├── 路線1_雲端完整版/               ← Python＋Gmail API＋雲端 routine 的程式與安裝手冊
-├── 路線3_桌面輕量版/               ← Claude 內建 Gmail 連接器＋桌面排程的 prompt 與安裝手冊
-└── 報告/                          ← 路線 3 的報告輸出位置
+├── 設定/                          ← 訪談產出：簡易版＝網頁排程指示.md；
+│                                     進階版＝config.json、report_template.html、routine-prompt.md、進階版_上傳包/
+├── 簡易版_網頁排程/                ← Claude 網頁版排程＋Gmail 連接器：指示範本與安裝手冊（建議多數人用）
+├── 進階版_雲端程式/                ← Python＋Gmail API＋雲端 routine 的程式與安裝手冊
+└── 範例_計畫承辦人版/              ← 虛構資料跑完整輪的示範產出
 ```
