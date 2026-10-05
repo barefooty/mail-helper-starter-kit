@@ -1,0 +1,77 @@
+<!-- 信箱分流報告 HTML 範本（通用版）。全部 inline CSS、Gmail 相容；佔位內容依當輪信件替換。
+     ★ 色票：#3b4a6b／#5a6478／#b3261e 三個 token 依「風格preset.md」選定後全檔替換；其餘一律灰階，不要加其他顏色。
+     ★ 工作區：共用信箱＝每位負責人一個工作區（新信件＋待辦追蹤放同一區），寄給誰就把誰的工作區排最前、各版項目內容相同僅排序不同（防漏信）。
+       單人信箱＝只有一個工作區，直接省略工作區大標題。訪談沒選的區塊（討論區表格等）整塊拿掉。
+     ★ 待辦追蹤：手動標籤名稱含 config.json track_keywords 的信；「✔ 已完成?」合併條列＋「確認後可撕標籤」；非當年度 is_old=true 加「舊」灰膠囊。 -->
+<div style="max-width:680px;margin:0 auto;font-family:-apple-system,'Segoe UI','Microsoft JhengHei',sans-serif;color:#333;line-height:1.6;">
+
+  <!-- 頁首（全報告唯一的色塊） -->
+  <div style="background:#3b4a6b;color:#fff;padding:16px 22px;border-radius:8px 8px 0 0;">
+    <div style="font-size:18px;font-weight:bold;">📬 【信箱報告】</div>
+    <div style="font-size:13px;opacity:.85;margin-top:2px;">{{日期（週X）場次}} ｜ 涵蓋：{{起訖}}（起點＝fetch 的 cutoff_taipei）</div>
+  </div>
+  <div style="background:#f7f7f7;padding:9px 22px;font-size:12px;color:#666;border:1px solid #e3e3e3;border-top:none;">
+    信件均保持未讀；本工具不自動貼任何標籤（路線 3：建議標籤僅列於報告）。貼上待處理標籤的信會列入待辦追蹤，處理完成請撕標籤。本輪：新信 N（還沒回覆 X）；待辦追蹤待處理 P 件。
+  </div>
+
+  <div style="background:#fff;border:1px solid #e3e3e3;border-top:none;padding:18px 22px;border-radius:0 0 8px 8px;">
+
+    <!-- ============ 工作區（共用信箱才有此大標題；每位負責人一區，收件人自己的排最前） ============ -->
+    <div style="font-size:16px;font-weight:bold;color:#222;border-bottom:2px solid #5a6478;padding-bottom:5px;margin:2px 0 12px;">小禾的信箱</div>
+
+    <div style="font-size:13px;font-weight:bold;color:#777;margin:10px 0 4px;">📥 新信件（還沒回覆 N 封）</div>
+
+    <!-- 急件卡：警示色只用在這裡與垃圾匣提醒 -->
+    <div style="background:#fafafa;border:1px solid #e3e3e3;border-left:3px solid #b3261e;border-radius:6px;padding:9px 14px;margin:6px 0;">
+      <span style="background:#b3261e;color:#fff;font-size:11px;padding:1px 8px;border-radius:10px;">急・期限前</span>
+      <b>　寄件人｜主旨佔位</b>
+      <div style="font-size:12px;color:#999;">M/D HH:MM</div>
+      <div style="font-size:13px;">一句摘要佔位。</div>
+      <div style="font-size:13px;color:#555;">💡 建議：佔位（依訪談給的處理原則；沒把握寫「請人工判斷」）。</div>
+    </div>
+
+    <!-- 一般卡：灰階 -->
+    <div style="background:#fafafa;border:1px solid #e3e3e3;border-left:3px solid #999;border-radius:6px;padding:9px 14px;margin:6px 0;">
+      <b>寄件人｜Re: 主旨佔位</b>
+      <span style="border:1px solid #bbb;color:#666;font-size:11px;padding:0 8px;border-radius:10px;">後續來信</span>
+      <div style="font-size:12px;color:#999;">M/D HH:MM</div>
+      <div style="font-size:13px;">我們回覆後對方又來信的摘要佔位。💡 建議：佔位。</div>
+    </div>
+
+    <div style="font-size:13px;margin:8px 0;color:#555;">
+      <b>✔ 已回覆／資訊：</b>主旨佔位（寄件人）・自動回覆佔位（一句帶過）
+    </div>
+
+    <div style="font-size:13px;font-weight:bold;color:#777;margin:14px 0 4px;">📌 待辦追蹤｜待處理　<span style="font-weight:normal;">待處理 N・看起來已完成 M</span></div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr><td style="padding:5px 10px;border:1px solid #e3e3e3;width:74px;background:#fafafa;"><b>⚠ 待處理</b></td><td style="padding:5px 10px;border:1px solid #e3e3e3;">寄件人｜主旨（日期）——一句摘要佔位〔有子標籤照標籤名稱標註〕</td></tr>
+      <tr><td style="padding:5px 10px;border:1px solid #e3e3e3;background:#fafafa;"><b>⚠ 待處理</b></td><td style="padding:5px 10px;border:1px solid #e3e3e3;"><span style="background:#999;color:#fff;font-size:11px;padding:0 8px;border-radius:10px;">舊</span>　非當年度信件佔位（YYYY/M/D）</td></tr>
+      <tr><td style="padding:5px 10px;border:1px solid #e3e3e3;background:#fafafa;color:#888;">✔ 已完成?</td><td style="padding:5px 10px;border:1px solid #e3e3e3;color:#888;">已回覆、看起來處理完成（確認後可撕標籤）：主旨佔位・主旨佔位</td></tr>
+    </table>
+
+    <!-- ============ （訪談有選才保留）特殊信件類型區塊：例如彙整名單、通知信分類表格 ============ -->
+    <div style="font-size:13px;font-weight:bold;color:#777;margin:12px 0 4px;">📋 ⏰ 該來沒來</div>
+    <div style="font-size:13px;background:#fafafa;border:1px solid #e3e3e3;border-radius:6px;padding:9px 14px;">類型甲：人名、人名／類型乙：人名（只列本輪新增；沒有的類型不列）</div>
+
+    <!-- ============ 共通區 ============ -->
+    <div style="font-size:16px;font-weight:bold;color:#222;border-bottom:2px solid #5a6478;padding-bottom:5px;margin:24px 0 12px;">共通區</div>
+    <div style="font-size:13px;color:#555;">
+      <b>🔔 系統信：</b>佔位一句帶過<br>
+      <b>🗑 垃圾信匣：</b>本輪無疑似相關信件（沒有就這樣寫；有的話改用下方紅框）
+    </div>
+    <div style="background:#fff;border:1px solid #b3261e;border-radius:6px;padding:9px 14px;margin:8px 0;font-size:13px;">
+      ⚠️ <b style="color:#b3261e;">垃圾信匣提醒：</b>有 N 封疑似相關信件在垃圾信匣——寄件人＋摘要佔位。<b>請記得到垃圾信匣查看並回覆。</b>
+    </div>
+
+    <!-- ============ 摘要 ============ -->
+    <div style="font-size:16px;font-weight:bold;color:#222;border-bottom:2px solid #5a6478;padding-bottom:5px;margin:24px 0 12px;">{{今日／本週}}摘要<span style="font-size:12px;color:#999;font-weight:normal;">　依訪談設定的場次附上</span></div>
+    <div style="font-size:13px;background:#fafafa;border:1px solid #e3e3e3;border-radius:6px;padding:9px 14px;">
+      {{今日/本週}}共 <b>N 封</b>新信（還沒回覆 X・已回覆 Y・公告與系統信 Z）；待辦追蹤共 <b>P 件待處理</b>。<br>
+      最優先：<b>佔位</b>。
+    </div>
+
+    <div style="margin-top:16px;padding-top:9px;border-top:1px solid #e3e3e3;font-size:12px;color:#aaa;">
+      下次自動執行：佔位｜小禾的信箱小幫手
+    </div>
+  </div>
+</div>

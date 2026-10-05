@@ -1,0 +1,28 @@
+{
+  "_說明": "把這個檔案複製成 config.json 再填值。_開頭的鍵是註解，程式會略過。沒填的欄位會用最保守的預設值（唯讀、不貼標籤）；精靈訪談後會幫你產好 config.json，通常不用手填。",
+
+  "_report_subject_prefix": "報告信主旨的固定開頭。這是進度基準：工具靠「寄件備份裡最近一封以此開頭的信」判斷哪些是新信，設定後就不要再改，也不要跟信箱裡其他信件主旨撞名。",
+  "report_subject_prefix": "【信箱報告】",
+
+  "_sender_name": "報告信的寄件顯示名稱。",
+  "sender_name": "信箱小幫手",
+
+  "_track_keywords": "待辦追蹤：你手動貼的標籤，名稱含這些關鍵字的信會列入報告的待辦區（含子標籤）。處理完成手動撕標籤即從清單消失。",
+  "track_keywords": ["待處理"],
+
+  "_auto_labels": "自動標籤。預設 enabled=false（建議維持）：工具對標籤完全唯讀。要開的話：labels 只能填「全新的、沒有人手動在用的」標籤名稱——絕對不要指到你既有的手動標籤，自動貼標和手動管理寫同一個標籤幾乎一定打架。exclusive 是互斥對（貼 A 自動撕 B）。",
+  "auto_labels": {
+    "enabled": false,
+    "labels": [],
+    "exclusive": {}
+  },
+
+  "_allowed_recipients": "報告收件人白名單（強烈建議設定）：send 只能寄給名單內的信箱，其他一律報錯。單人信箱就填自己一個。",
+  "allowed_recipients": ["你的信箱@example.com"],
+
+  "_overlap_minutes": "進度基準往前多抓幾分鐘（重疊保險，寧可重列不漏信）。維持 15 即可。",
+  "overlap_minutes": 15,
+
+  "_default_days": "找不到進度基準（例如第一次執行）時往回抓幾天。",
+  "default_days": 5
+}
