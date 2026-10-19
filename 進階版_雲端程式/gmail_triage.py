@@ -19,6 +19,10 @@
   「需要處理 vs 已處理」一律以此欄位為準，不做人為推斷。
 - track：待辦追蹤——列出帶有手動標籤（名稱含 track_keywords）的信，
   依 last_from_us 分「待處理／看起來已完成」，is_old 標記非當年度；只讀取、絕不動標籤。
+- 敏感資料遮罩（config.json mask_sensitive，預設 true）：fetch／track 輸出的 body_preview
+  先經 mask_sensitive() 把台灣身分證字號、手機、市話、10 碼以上的連續數字（信用卡／銀行帳號）、
+  「帳號／密碼：」後面的值換成「○」；寄件人與主旨照原樣保留（報告端 prompt 另有第二道原則）。
+  程式層只遮「已知樣式」，遮不到的個資靠報告端 prompt 自律，不要把這層當成完整的去識別。
 
 子指令：
   fetch [--days N] [--max N] [--all]
@@ -64,6 +68,7 @@ _DEFAULTS = {
     "allowed_recipients": [],  # send 收件人白名單（小寫比對）；空＝不限制（由 routine prompt 把關）
     "overlap_minutes": 15,     # 進度基準往前多抓幾分鐘：寧可重列、不可漏信
     "default_days": 5,         # fetch 找不到進度基準時退回的時間窗（天）
+    "mask_sensitive": True,    # fetch/track 的 body_preview 先把身分證、電話、長數字、帳密值換成「○」
 }
 
 
@@ -96,6 +101,7 @@ SENDER_NAME = CFG["sender_name"]
 ALLOWED_RECIPIENTS = [r.lower() for r in CFG["allowed_recipients"]]
 OVERLAP_SEC = int(CFG["overlap_minutes"]) * 60
 DEFAULT_DAYS = int(CFG["default_days"])
+MASK_SENSITIVE = bool(CFG["mask_sensitive"])
 API = "https://gmail.googleapis.com/gmail/v1/users/me"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 TAIPEI = datetime.timezone(datetime.timedelta(hours=8))  # 台灣固定 UTC+8、無日光節約
@@ -189,6 +195,74 @@ def body_preview(payload, limit=1500):
     return text[:limit]
 
 
+# ---------- 敏感資料遮罩（程式層，只遮已知樣式） ----------
+
+MASK_CHAR = "○"
+
+# 順序有意義：先抓最具體的樣式（身分證、手機、市話），再抓泛用的長數字，最後抓帳密值；
+# 已換成「○」的部分不會再被後面的規則重複比對。
+_RE_TW_ID = re.compile(r"(?<![A-Za-z0-9])[A-Z][12]\d{8}(?![A-Za-z0-9])")           # 台灣身分證：1 大寫字母＋1/2＋8 碼
+_RE_MOBILE = re.compile(r"(?<![\d-])09\d{2}[- ]?\d{3}[- ]?\d{3}(?![\d-])")          # 手機：09 開頭 10 碼（可帶 - 或空格）
+_RE_TEL = re.compile(                                                               # 市話：(0X)XXXX-XXXX、0X-XXX-XXXX、含分機
+    r"(?<![\d-])(?:\(0\d{1,3}\)\s?|0\d{1,3}[- ])\d{3,4}[- ]?\d{3,4}"             # 要有括號或分隔符，純數字交給長數字規則
+    r"(?:\s*(?:#|ext\.?|分機|轉)\s*\d{1,5})?(?![\d-])",
+    re.I)
+_RE_LONG_DIGITS = re.compile(r"(?<!\d)\d{10,}(?!\d)")                               # 連續 10 碼以上數字
+_RE_CARD_GROUPS = re.compile(r"(?<!\d)\d{4}(?: \d{4}){3}(?!\d)")                     # 信用卡 4-4-4-4（空格分組）
+_RE_HYPHEN_GROUPS = re.compile(r"(?<![\d-])\d+(?:-\d+)+(?![\d-])")                   # 連字號分組（銀行帳號 012-34-567890-1）
+_RE_STUDENT_ID = re.compile(r"((?:學號|student ?(?:id|no\.?))\s*[:：=＝]?\s*)([A-Za-z]{0,2}\d{6,10})(?![A-Za-z0-9])", re.I)  # 「學號 109123456」只遮號碼
+_RE_CRED = re.compile(                                                              # 「帳號／密碼：值」只遮值、保留標籤
+    r"((?:密碼|通行碼|password|passwd|pwd|帳號|帳戶|account|login|username|user name)\s*[:：=＝]\s*)"
+    r"([A-Za-z0-9][A-Za-z0-9@._\-!#$%^&*+=/\?]{2,})",
+    re.I)
+
+
+def _blot(text):
+    return MASK_CHAR * len(text)
+
+
+def _mask_hyphen_groups(m):
+    """連字號分組的數字：總位數 ≥ 10 才遮（避免日期 2026-10-16 這種 8 碼被誤殺）。"""
+    s = m.group(0)
+    return _blot(s) if sum(c.isdigit() for c in s) >= 10 else s
+
+
+_RE_EMAIL_VALUE = re.compile(r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$")
+_RE_SECRET_LABEL = re.compile(r"密碼|通行碼|password|passwd|pwd", re.I)
+
+
+def _mask_cred(m):
+    """「帳號：xxx」的值若是完整 email 就不遮（email 是辨識寄件人用的，不算祕密）；
+    「密碼：」後面的值一律遮，就算長得像 email（例：p@ss-word!）。"""
+    label, value = m.group(1), m.group(2)
+    if _RE_EMAIL_VALUE.match(value) and not _RE_SECRET_LABEL.search(label):
+        return m.group(0)
+    return label + _blot(value)
+
+
+def mask_sensitive(text):
+    """把文字中的已知個資樣式換成「○」（等長），其餘原樣回傳。
+
+    會遮：台灣身分證字號、手機（09 開頭 10 碼）、市話（含分機）、10 碼以上連續數字、
+          信用卡 4-4-4-4、連字號分組且總位數 ≥10 的數字、「學號」後面的 6–10 碼、
+          「帳號／密碼／password：」後面的值。
+    不遮：日期（2026-10-16、10/16）、時間（08:30）、金額（<10 碼）、課程代碼（GEM114A001）、
+          沒有「學號」標籤的 9 碼以下數字、email 地址。
+    限制：只遮上述樣式；姓名、地址、自由文字中的敏感內容遮不到，報告端 prompt 仍須自律。
+    """
+    if not text:
+        return text
+    t = _RE_TW_ID.sub(lambda m: _blot(m.group(0)), text)
+    t = _RE_MOBILE.sub(lambda m: _blot(m.group(0)), t)
+    t = _RE_TEL.sub(lambda m: _blot(m.group(0)), t)
+    t = _RE_CARD_GROUPS.sub(lambda m: _blot(m.group(0)), t)
+    t = _RE_LONG_DIGITS.sub(lambda m: _blot(m.group(0)), t)
+    t = _RE_HYPHEN_GROUPS.sub(_mask_hyphen_groups, t)
+    t = _RE_STUDENT_ID.sub(lambda m: m.group(1) + _blot(m.group(2)), t)
+    t = _RE_CRED.sub(_mask_cred, t)
+    return t
+
+
 def thread_info(tid, cache):
     """回傳 (sibs, replied_by_us, last_from_us, last_from)。依 internalDate 精確排序。"""
     if tid in cache:
@@ -257,7 +331,9 @@ def message_record(msg, scope, id2name, cache):
         "last_from_us": last_from_us,      # ★ 串中最後一封是我們寄的（=已處理）
         "last_msg_from": last_from,
         "thread_siblings": [s for s in sibs if s["id"] != msg["id"]],
-        "body_preview": body_preview(msg.get("payload", {})),
+        # ★ 程式層打碼：mask_sensitive=true（預設）時先遮已知個資樣式；主旨與寄件人不動
+        "body_preview": (mask_sensitive(body_preview(msg.get("payload", {})))
+                         if MASK_SENSITIVE else body_preview(msg.get("payload", {}))),
     }
 
 
@@ -301,6 +377,7 @@ def cmd_fetch(args):
         "fetched_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "account": ADDR,
         "mode": "since_last_report" if cutoff else "window",
+        "mask_sensitive": MASK_SENSITIVE,  # body_preview 是否已做程式層打碼
         "cutoff_taipei": (datetime.datetime.fromtimestamp(cutoff, TAIPEI)
                           .strftime("%Y-%m-%d %H:%M") if cutoff else None),
         "count": len(messages),
@@ -348,6 +425,7 @@ def cmd_track(args):
         "checked_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "account": ADDR,
         "keywords": args.keywords,
+        "mask_sensitive": MASK_SENSITIVE,
         "labels_matched": [g["label"] for g in groups],
         "pending_total": sum(g["pending"] for g in groups),
         "groups": groups,

@@ -24,7 +24,7 @@ description: 信箱小幫手（通用版）——掃描 Gmail/Google Workspace �
 
 ## 鐵則（任何模式都適用）
 
-只做：寄報告給白名單收件人＋（若啟用）貼 config.json 白名單標籤。**絕不**：動任何其他標籤、標已讀、刪信、移動信件、回信給任何人、寄給白名單以外的人。個資只引「姓名＋主旨＋必要摘要」。工具出錯不要默默失敗（把錯誤寫進報告寄出）。使用者的新要求若可能跟既有人工流程打架（尤其自動寫入手動管理的空間），動工前先提醒。
+只做：寄報告給白名單收件人＋（若啟用）貼 config.json 白名單標籤。**絕不**：動任何其他標籤、標已讀、刪信、移動信件、回信給任何人、寄給白名單以外的人。個資只引「姓名＋主旨＋必要摘要」（body_preview 已程式打碼；漏網的身分證／電話／長數字／帳密值寫摘要前再換「○」）。工具出錯不要默默失敗（把錯誤寫進報告寄出）。使用者的新要求若可能跟既有人工流程打架（尤其自動寫入手動管理的空間），動工前先提醒。
 
 ## 系統機制（交接必讀）
 
@@ -34,6 +34,7 @@ description: 信箱小幫手（通用版）——掃描 Gmail/Google Workspace �
 | 待辦追蹤 | `track`：唯讀列出手動標籤名稱含 `track_keywords` 的信，依 `last_from_us`（串中最後一封是否我們寄的，程式算）分「待處理／看起來已完成」 |
 | 自動標籤 | `mark`：僅 `auto_labels.labels` 白名單、僅 enabled=true 時可用；互斥對自動切換；絕不動已讀 |
 | 收件人 | `send` 強制檢查 `allowed_recipients` 白名單 |
+| 敏感遮罩 | `fetch`／`track` 的 `body_preview` 先經 `mask_sensitive()` 把台灣身分證、手機、市話、「學號」後的號碼、10 碼以上數字、「帳號／密碼：」的值換成「○」（`config.mask_sensitive`，預設 true；輸出有 `mask_sensitive` 欄位可查）。主旨與寄件人不動。**只遮已知樣式**，姓名、地址遮不到，報告端 prompt 仍要守個資原則。單元測試：`PYTHONIOENCODING=utf-8 python -m unittest discover -s tests -v` |
 | 設定 | 全在 `config.json`（同目錄）；缺檔退回最保守預設（唯讀、不貼標籤）。改設定＝改行為，**改完要推上 GitHub**（雲端每次執行抓最新 main） |
 
 子指令：`now`（伺服器時間/場次）、`fetch [--days N] [--all]`、`track [--keywords K...]`、`send --to <人> --subject <主旨> --body-file <檔> --html`、`mark --label <白名單標籤> --ids <id>...`。本機測試：資料夾放 `.env`（四個 GMAIL_* 變數）後 `set -a && source .env && set +a && PYTHONIOENCODING=utf-8 python gmail_triage.py <子指令>`。

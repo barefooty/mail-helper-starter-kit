@@ -24,5 +24,8 @@
   "overlap_minutes": 15,
 
   "_default_days": "找不到進度基準（例如第一次執行）時往回抓幾天。",
-  "default_days": 5
+  "default_days": 5,
+
+  "_mask_sensitive": "敏感資料打碼（建議維持 true）：fetch／track 輸出的內文摘要先把台灣身分證字號、手機、市話、「學號」後面的號碼、10 碼以上的連續數字（信用卡／銀行帳號）、「帳號／密碼：」後面的值換成「○」；寄件人與主旨不動。只遮得到已知樣式，姓名、地址等自由文字遮不到，報告端的 prompt 原則仍要守。",
+  "mask_sensitive": true
 }
