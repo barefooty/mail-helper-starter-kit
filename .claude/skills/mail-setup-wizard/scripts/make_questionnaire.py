@@ -294,7 +294,7 @@ def build(out: Path, prefill: dict):
     options(doc, ["寄一封摘要信給我自己", "不用寄，我到 Claude 的排程紀錄看"])
     hint(doc, "收件人（只有我／團隊每人一份，寫信箱）與其他想法：")
     answer_box(doc, lines=2)
-    hint(doc, "［選填］報告風格（只有進階版用得到）：A 穩重藍灰／B 溫暖米橘／C 清爽綠／D 黑白極簡")
+    hint(doc, "［選填］報告信的顏色風格：A 沉穩深青（預設）／B 溫暖棕／C 知性靛藍／D 極簡黑白")
     answer_box(doc, required=False, lines=1)
 
     # Q8

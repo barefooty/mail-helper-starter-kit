@@ -98,7 +98,7 @@ python .claude/skills/mail-setup-wizard/scripts/read_questionnaire.py 我的工�
 | `我的工作脈絡/工作脈絡問卷.docx`（選問卷才有） | 使用者填的問卷正本；讀回後保留，不改寫 | 共用 |
 | `我的工作脈絡/工作脈絡.md` | 身分、業務線與階段、對接對象、常見信、優先序、授權邊界（人看的版本）；檔頭「來源」要寫明訪談／側寫／問卷／Excel 各用了哪些 | 共用 |
 | `我的工作脈絡/分類規則.md` | 給 AI 的分類規則：第一層業務線→第二層階段→寄件人辨識→急件定義→一句帶過清單→該來沒來清單→敏感類別清單（第 8 題子選項；沒開寫「無」，但打碼那一行固定在） | 共用 |
-| `設定/網頁排程指示.md` | 從 `簡易版_網頁排程/網頁排程指示.template.md` 填所有【】；分類規則整段貼入（網頁排程讀不到本機檔案，規則一定要在指示裡） | 簡易版 |
+| `設定/網頁排程指示.md` | 從 `簡易版_網頁排程/網頁排程指示.template.md` 填所有【】；分類規則整段貼入（網頁排程讀不到本機檔案，規則一定要在指示裡）；「報告版型」段的頁首色／分隔線色依第 7 題 preset 填入（報告用 Gmail 連接器 htmlBody 寄 HTML 信） | 簡易版 |
 | `設定/config.json` | 從 `進階版_雲端程式/config.example.json` 填：主旨前綴、寄件名、track_keywords、auto_labels、allowed_recipients；`mask_sensitive` 維持 true | 進階版 |
 | `設定/report_template.html` | 從 `report_template.template.html` 換色票 | 進階版 |
 | `設定/routine-prompt.md` | 從 `進階版_雲端程式/routine-prompt.template.md` 填【】佔位，分類規則段落貼入 `分類規則.md` 內容 | 進階版 |
