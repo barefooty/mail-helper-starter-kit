@@ -29,12 +29,12 @@ FONT = "微軟正黑體"
 RED = RGBColor(0xC0, 0x00, 0x00)
 GRAY = RGBColor(0x7F, 0x7F, 0x7F)
 INK = RGBColor(0x2B, 0x3A, 0x45)
-TEAL = RGBColor(0x2F, 0x6F, 0x73)
+TEAL = RGBColor(0x3B, 0x4A, 0x6B)   # 2026-10-21 起改靛藍（起始包預設配色）；必答的紅字黃框不動（問卷固定規則）
 YELLOW_FILL = "FFF7CC"
 YELLOW_LINE = "E0B000"
 GRAY_FILL = "F2F2F2"
 GRAY_LINE = "BFBFBF"
-BLUE_FILL = "E9F2F2"
+BLUE_FILL = "E4EAF6"
 HEAD_FILL = "FBEFC8"      # 必答表格標題列
 HEAD_FILL_OPT = "E7E7E7"  # 選填表格標題列
 BOX = "☐"
@@ -226,7 +226,7 @@ def build(out: Path, prefill: dict):
         p.paragraph_format.space_after = Pt(2)
         set_run_font(p.add_run(txt), 10, b, TEAL if b else INK)
     shade(c, BLUE_FILL)
-    borders(c, "BFD6D6", 8)
+    borders(c, "ABC0DB", 8)
     para(doc, "", space_after=4)
 
     # Q1
@@ -294,7 +294,7 @@ def build(out: Path, prefill: dict):
     options(doc, ["寄一封摘要信給我自己", "不用寄，我到 Claude 的排程紀錄看"])
     hint(doc, "收件人（只有我／團隊每人一份，寫信箱）與其他想法：")
     answer_box(doc, lines=2)
-    hint(doc, "［選填］報告信的顏色風格：A 沉穩深青（預設）／B 溫暖棕／C 知性靛藍／D 極簡黑白")
+    hint(doc, "［選填］報告信的顏色風格：A 沉穩靛藍（預設）／B 溫暖棕／C 清爽深青／D 極簡黑白")
     answer_box(doc, required=False, lines=1)
 
     # Q8
