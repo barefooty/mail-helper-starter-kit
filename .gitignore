@@ -11,3 +11,7 @@ __pycache__/
 *.pyc
 # 改 skill 前的本機備份（git 歷史才是正本），不進 repo、不進公開版
 _backup/
+
+# 進階版出口打碼的人名快取與寄出前留檔（只在執行目錄）
+進階版_雲端程式/.names_cache.json
+*.masked

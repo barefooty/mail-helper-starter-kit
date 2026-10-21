@@ -17,6 +17,9 @@
   ★ 因此報告主旨必須以 report_subject_prefix 開頭，否則進度基準會失效。
 - 每封信附 last_from_us（程式依 internalDate 精確計算：串中最後一封是否為我們寄出），
   「需要處理 vs 已處理」一律以此欄位為準，不做人為推斷。
+- 出口打碼（2026-10-20 定版「先拆敏感資料、再讀信、再摘要」）：send 寄出前對報告全文再遮一次——
+  fetch／track 看到的寄件人人名改「王O明」（.names_cache.json；config 的 mask_names_whitelist／
+  mask_names_skip_domains 排除同事），號碼樣式同 mask_sensitive；HTML 只動文字節點。--no-mask 可關（除錯用）。
 - track：待辦追蹤——列出帶有手動標籤（名稱含 track_keywords）的信，
   依 last_from_us 分「待處理／看起來已完成」，is_old 標記非當年度；只讀取、絕不動標籤。
 - 敏感資料遮罩（config.json mask_sensitive，預設 true）：fetch／track 輸出的 body_preview
@@ -69,6 +72,8 @@ _DEFAULTS = {
     "overlap_minutes": 15,     # 進度基準往前多抓幾分鐘：寧可重列、不可漏信
     "default_days": 5,         # fetch 找不到進度基準時退回的時間窗（天）
     "mask_sensitive": True,    # fetch/track 的 body_preview 先把身分證、電話、長數字、帳密值換成「○」
+    "mask_names_whitelist": [],      # 出口打碼不改 O 的人名（承辦人、同事）
+    "mask_names_skip_domains": [],   # 這些網域的寄件人視為同事、不改 O（如 my-school.edu.tw）
 }
 
 
@@ -102,6 +107,8 @@ ALLOWED_RECIPIENTS = [r.lower() for r in CFG["allowed_recipients"]]
 OVERLAP_SEC = int(CFG["overlap_minutes"]) * 60
 DEFAULT_DAYS = int(CFG["default_days"])
 MASK_SENSITIVE = bool(CFG["mask_sensitive"])
+MASK_NAMES_WHITELIST = set(CFG["mask_names_whitelist"])
+MASK_NAMES_SKIP_DOMAINS = [d.lower() for d in CFG["mask_names_skip_domains"]]
 API = "https://gmail.googleapis.com/gmail/v1/users/me"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 TAIPEI = datetime.timezone(datetime.timedelta(hours=8))  # 台灣固定 UTC+8、無日光節約
@@ -217,14 +224,50 @@ _RE_CRED = re.compile(                                                          
     re.I)
 
 
+_RE_EMAIL = re.compile(r"[\w.+\-]+@[\w.\-]+\.[A-Za-z]{2,}")                                 # email：本地端 6 碼以上的數字串遮掉（學號型帳號），網域保留
+_RE_ALNUM_ID = re.compile(r"(?<![A-Za-z0-9])[A-Za-z]{1,2}\d{8,9}(?![A-Za-z0-9])")              # 字母＋8～9 碼：s11564026、B11521055 這類學號（沒有「學號」標籤也遮）
+
+
+def _mask_email_local(m):
+    local, _, domain = m.group(0).partition("@")
+    return re.sub(r"\d{6,}", lambda d: _partial(d.group(0)), local) + "@" + domain
+
+
 def _blot(text):
+    """全遮（備用）：整串換「○」。"""
     return MASK_CHAR * len(text)
+
+
+def _secret(text):
+    """密碼、通行碼：留前 2 字、其餘遮（Aa○○○○○○；2026-10-20 定版）。密碼內容另由報告端規則禁止寫進摘要。"""
+    return text[:2] + MASK_CHAR * max(0, len(text) - 2)
+
+
+def _partial(text):
+    """部分遮罩（2026-10-20 定版）：留頭尾、遮中間，看得出是哪一筆又不洩漏整串。
+    只動英數字元，分隔符（- 空格 #）與「分機」等中文原樣。規則：英數 n 個 → 遮 n*4//10 個（至少 2）、
+    尾巴留 3（奇數）或 2（偶數）、其餘留頭；14 個以上的純英數長串（信用卡）只留頭 4 尾 2。
+    例：0912345678→0912○○○○78、A212345657→A212○○○○57、311123034→311○○○034、C115164117→C115○○○○17。"""
+    idx = [i for i, c in enumerate(text) if c.isascii() and c.isalnum()]  # 只數英數，「分機」等中文不算
+    n = len(idx)
+    if n <= 3:
+        return MASK_CHAR * len(text)
+    if n >= 14 and text.isascii():
+        head, tail = 4, 2                      # 信用卡這類純數字長串：只留頭 4 尾 2
+    else:
+        m = max(2, n * 4 // 10)
+        tail = 3 if n % 2 else 2
+        head = max(1, n - m - tail)
+    chars = list(text)
+    for k in idx[head:n - tail]:
+        chars[k] = MASK_CHAR
+    return "".join(chars)
 
 
 def _mask_hyphen_groups(m):
     """連字號分組的數字：總位數 ≥ 10 才遮（避免日期 2026-10-16 這種 8 碼被誤殺）。"""
     s = m.group(0)
-    return _blot(s) if sum(c.isdigit() for c in s) >= 10 else s
+    return _partial(s) if sum(c.isdigit() for c in s) >= 10 else s
 
 
 _RE_EMAIL_VALUE = re.compile(r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$")
@@ -235,32 +278,173 @@ def _mask_cred(m):
     """「帳號：xxx」的值若是完整 email 就不遮（email 是辨識寄件人用的，不算祕密）；
     「密碼：」後面的值一律遮，就算長得像 email（例：p@ss-word!）。"""
     label, value = m.group(1), m.group(2)
+    nxt = m.string[m.end():m.end() + 1]
+    if nxt in (MASK_CHAR, "@") and not _RE_SECRET_LABEL.search(label):
+        return m.group(0)                   # 帳號值是 email（本地端已先被 email 規則遮過）：不再遮
     if _RE_EMAIL_VALUE.match(value) and not _RE_SECRET_LABEL.search(label):
         return m.group(0)
-    return label + _blot(value)
+    if _RE_SECRET_LABEL.search(label):
+        return label + _secret(value)    # 密碼、通行碼：留前 2 字
+    return label + _partial(value)      # 帳號：留頭尾
 
 
 def mask_sensitive(text):
-    """把文字中的已知個資樣式換成「○」（等長），其餘原樣回傳。
+    """把文字中的已知個資樣式「留頭尾、遮中間」（密碼留前 2 字），其餘原樣回傳。
 
     會遮：台灣身分證字號、手機（09 開頭 10 碼）、市話（含分機）、10 碼以上連續數字、
           信用卡 4-4-4-4、連字號分組且總位數 ≥10 的數字、「學號」後面的 6–10 碼、
-          「帳號／密碼／password：」後面的值。
+          「帳號／密碼／password：」後面的值、字母＋8～9 碼的學號型代號（s11564026）、
+          email 本地端 6 碼以上的數字串（413421259@school.edu.tw → ○○○○○○○○○@school.edu.tw，網域保留）。
     不遮：日期（2026-10-16、10/16）、時間（08:30）、金額（<10 碼）、課程代碼（GEM114A001）、
-          沒有「學號」標籤的 9 碼以下數字、email 地址。
+          沒有「學號」標籤的 9 碼以下純數字、沒有數字的 email。
     限制：只遮上述樣式；姓名、地址、自由文字中的敏感內容遮不到，報告端 prompt 仍須自律。
     """
     if not text:
         return text
-    t = _RE_TW_ID.sub(lambda m: _blot(m.group(0)), text)
-    t = _RE_MOBILE.sub(lambda m: _blot(m.group(0)), t)
-    t = _RE_TEL.sub(lambda m: _blot(m.group(0)), t)
-    t = _RE_CARD_GROUPS.sub(lambda m: _blot(m.group(0)), t)
-    t = _RE_LONG_DIGITS.sub(lambda m: _blot(m.group(0)), t)
+    t = _RE_EMAIL.sub(_mask_email_local, text)          # 先處理 email：本地端數字遮、網域留
+    t = _RE_TW_ID.sub(lambda m: _partial(m.group(0)), t)
+    t = _RE_MOBILE.sub(lambda m: _partial(m.group(0)), t)
+    t = _RE_TEL.sub(lambda m: _partial(m.group(0)), t)
+    t = _RE_CARD_GROUPS.sub(lambda m: _partial(m.group(0)), t)
+    t = _RE_LONG_DIGITS.sub(lambda m: _partial(m.group(0)), t)
     t = _RE_HYPHEN_GROUPS.sub(_mask_hyphen_groups, t)
-    t = _RE_STUDENT_ID.sub(lambda m: m.group(1) + _blot(m.group(2)), t)
+    t = _RE_STUDENT_ID.sub(lambda m: m.group(1) + _partial(m.group(2)), t)
     t = _RE_CRED.sub(_mask_cred, t)
+    t = _RE_ALNUM_ID.sub(lambda m: _partial(m.group(0)), t)
     return t
+
+
+# ---------- 出口打碼（2026-10-20 定版：先拆敏感資料、再讀信、再摘要；寄出前再遮一次） ----------
+
+NAMES_CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".names_cache.json")
+_RE_CJK_RUN = re.compile(r"[\u4e00-\u9fff]+")
+_RE_VIA = re.compile(r"\s*(?:經由|via)\s*\(.*$")
+_NOT_NAME_ENDINGS = ("中心", "大學", "學院", "學校", "科大", "系", "所", "處", "室", "組", "部", "公司", "團隊", "小組",
+                     "辦公室", "教育", "平台", "通知", "客服", "基金會", "協會", "學會", "書院", "委員會", "計畫",
+                     "小幫手", "信箱", "表單", "系統", "官方", "團", "老師", "助教", "同學", "軟體", "服務", "工作室",
+                     "科技", "行銷", "網", "站", "院", "部門", "股份", "有限", "設計", "數位", "顧問", "報", "會")
+_COMPOUND_SURNAMES = ("歐陽", "司馬", "司徒", "諸葛", "上官", "夏侯", "范姜", "張簡", "長孫", "東方", "皇甫", "尉遲", "公孫")
+
+
+def _valid_name(seg):
+    """2～4 個中文字；4 字只接受複姓開頭（台灣 4 字名幾乎都是複姓，其餘多半是單位名）；不以單位字結尾。"""
+    if not seg or not (2 <= len(seg) <= 4) or not _RE_CJK_RUN.fullmatch(seg):
+        return False
+    if any(seg.endswith(w) for w in _NOT_NAME_ENDINGS):
+        return False
+    if len(seg) == 4 and not seg.startswith(_COMPOUND_SURNAMES):
+        return False
+    return True
+
+
+def name_from_display(display):
+    """從寄件人顯示名抓「人名」候選（2～4 個中文字）；單位名、系統名回傳 None。
+    「四視光一A王小明」「人力資源發展系李小華」這類帶系級前綴的取最後 3 字；
+    兩字候選只有在顯示名就是那兩個字時才算人名（避免「demo學網」這類平台名被當人名）。"""
+    if not display:
+        return None
+    d = _RE_VIA.sub("", display).strip(' "\'')
+    runs = _RE_CJK_RUN.findall(d)
+    if not runs:
+        return None
+    seg = runs[-1]
+    if any(seg.endswith(w) for w in _NOT_NAME_ENDINGS):
+        return None
+    if len(seg) > 4:
+        seg = seg[-3:]
+    if len(seg) == 2 and d != seg:
+        return None
+    return seg if _valid_name(seg) else None
+
+
+def _display_and_domain(from_header):
+    m = re.match(r'\s*"?(.*?)"?\s*<([^>]+)>\s*$', from_header or "")
+    if m:
+        disp, addr = m.group(1), m.group(2)
+    else:
+        disp, addr = "", (from_header or "").strip()
+    dom = addr.split("@")[-1].lower() if "@" in addr else ""
+    return disp, dom
+
+
+def _update_names_cache(records):
+    """fetch／track 後把這輪看到的寄件人人名記進 .names_cache.json，給 send 的出口打碼用。
+    同一場 routine 的 fetch→track→send 在同一個工作目錄（雲端沙箱也是），本機檔已 gitignore。
+    config 的 mask_names_skip_domains（同事網域）與 mask_names_whitelist（同事姓名）不記。"""
+    if not MASK_SENSITIVE:
+        return
+    cache = {}
+    if os.path.exists(NAMES_CACHE):
+        try:
+            with open(NAMES_CACHE, encoding="utf-8") as f:
+                cache = json.load(f)
+        except ValueError:
+            cache = {}
+    cache = {k: v for k, v in cache.items() if _valid_name(k)}  # 規則更新時順手清掉舊的誤判
+    now = int(time.time())
+    for r in records:
+        froms = [r.get("from", "")] + [s.get("from", "") for s in r.get("thread_siblings", [])]
+        for fh in froms:
+            disp, dom = _display_and_domain(fh)
+            if dom and any(dom == d or dom.endswith("." + d) for d in MASK_NAMES_SKIP_DOMAINS):
+                continue
+            n = name_from_display(disp)
+            if n and n not in MASK_NAMES_WHITELIST:
+                cache[n] = now
+    if len(cache) > 800:  # 只留最近看到的
+        cache = dict(sorted(cache.items(), key=lambda kv: -kv[1])[:800])
+    with open(NAMES_CACHE, "w", encoding="utf-8") as f:
+        json.dump(cache, f, ensure_ascii=False)
+
+
+def load_names(extra_file=None):
+    names = set()
+    for path in (NAMES_CACHE, extra_file):
+        if path and os.path.exists(path):
+            try:
+                with open(path, encoding="utf-8") as f:
+                    data = json.load(f)
+                names.update(data.keys() if isinstance(data, dict) else data)
+            except ValueError:
+                pass
+    return {n for n in names if _valid_name(n) and n not in MASK_NAMES_WHITELIST}
+
+
+def name_mask(name):
+    """王小明→王O明、陳明→陳O、歐陽小明→歐陽OO（2026-10-16 定版的列法）。"""
+    n = len(name)
+    if n <= 1:
+        return name
+    if n == 2:
+        return name[0] + "O"
+    if n == 3:
+        return name[0] + "O" + name[2]
+    return name[:2] + "O" * (n - 2)
+
+
+def mask_report_text(text, names):
+    """報告文字：先把已知人名改 O（長的先換），再跑 mask_sensitive。回傳 (文字, 人名命中數)。"""
+    out, hits = text, 0
+    for n in sorted(names, key=len, reverse=True):
+        if n in out:
+            hits += out.count(n)
+            out = out.replace(n, name_mask(n))
+    return mask_sensitive(out), hits
+
+
+_RE_HTML_SPLIT = re.compile(r"(<style[^>]*>.*?</style>|<script[^>]*>.*?</script>|<[^>]+>)", re.S | re.I)
+
+
+def mask_report_html(html_text, names):
+    """只動 HTML 的文字節點；標籤、屬性、<style>／<script> 原樣（連結不會被「○」弄壞）。"""
+    parts = _RE_HTML_SPLIT.split(html_text)
+    hits = 0
+    for i, p in enumerate(parts):
+        if not p or p.startswith("<"):
+            continue
+        parts[i], h = mask_report_text(p, names)
+        hits += h
+    return "".join(parts), hits
 
 
 def thread_info(tid, cache):
@@ -373,6 +557,7 @@ def cmd_fetch(args):
         messages.append(message_record(msg, scope, id2name, cache))
 
     messages.sort(key=lambda x: x["internal_ts"], reverse=True)
+    _update_names_cache(messages)  # 出口打碼用的人名清單
     print(json.dumps({
         "fetched_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "account": ADDR,
@@ -421,6 +606,7 @@ def cmd_track(args):
             "messages": msgs,
         })
 
+    _update_names_cache([m for grp in groups for m in grp["messages"]])  # 出口打碼用的人名清單
     print(json.dumps({
         "checked_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "account": ADDR,
@@ -480,6 +666,13 @@ def cmd_send(args):
             die("收件人不在 config.json 的 allowed_recipients 白名單：%s" % "、".join(bad))
     with open(args.body_file, encoding="utf-8") as f:
         body = f.read()
+    stats = {"enabled": False}
+    if MASK_SENSITIVE and not args.no_mask:  # ★ 出口打碼：人名改 O＋號碼再掃一次，只動文字節點
+        names = load_names(args.names_file)
+        body, hits = (mask_report_html if args.html else mask_report_text)(body, names)
+        stats = {"enabled": True, "names_known": len(names), "name_hits": hits}
+        with open(args.body_file + ".masked", "w", encoding="utf-8") as f:  # 留一份寄出的實際內容供核對
+            f.write(body)
     msg = MIMEText(body, "html" if args.html else "plain", "utf-8")
     msg["Subject"] = args.subject
     msg["From"] = formataddr((SENDER_NAME, ADDR))
@@ -488,7 +681,7 @@ def cmd_send(args):
         msg["Cc"] = ", ".join(cc)
     raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
     api("/messages/send", method="POST", body={"raw": raw})
-    print(json.dumps({"ok": True, "to": args.to, "cc": cc, "subject": args.subject}, ensure_ascii=False))
+    print(json.dumps({"ok": True, "to": args.to, "cc": cc, "subject": args.subject, "masked": stats}, ensure_ascii=False))
 
 
 def server_now_utc():
@@ -564,6 +757,8 @@ def main():
     s.add_argument("--subject", required=True)
     s.add_argument("--body-file", required=True)
     s.add_argument("--html", action="store_true")
+    s.add_argument("--no-mask", action="store_true", help="不做出口打碼（除錯用；正式 routine 不要加）")
+    s.add_argument("--names-file", help="額外的人名清單 JSON（list 或 {name: ts}），與 .names_cache.json 合併")
     s.set_defaults(func=cmd_send)
 
     args = p.parse_args()
