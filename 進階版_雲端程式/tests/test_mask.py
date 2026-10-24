@@ -56,7 +56,7 @@ class ShouldMask(unittest.TestCase):
         self.assertEqual(mask_sensitive("帳號 012-34-567890-1"), "帳號 012-34-5○○○○0-1")
 
     def test_password_label_keeps_label_masks_whole_value(self):
-        # 密碼、通行碼：全遮（2026-10-24 芷均定：摘要上不要有任何密碼詳情）；密碼內容不寫進摘要是報告端規則
+        # 密碼、通行碼：全遮（2026-10-24 定：摘要上不得出現任何密碼內容）；密碼內容不寫進摘要是報告端規則
         self.assertEqual(mask_sensitive("密碼：Abc12345"), "密碼：" + O * 8)
         self.assertEqual(mask_sensitive("password: p@ss-word!"), "password: " + O * 10)
         self.assertEqual(mask_sensitive("通行碼=Xyz98765"), "通行碼=" + O * 8)
