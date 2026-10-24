@@ -3,7 +3,7 @@
 """mask_sensitive()／出口打碼的單元測試（純標準庫 unittest）。
 
 2026-10-20 定版「留頭尾、遮中間」：號碼只遮中間約四成（0912○○○○78、A212○○○○57、311○○○034），
-密碼、通行碼留前 2 字（Aa○○○○○○）；學校、單位名不遮；人名改 O（王O明）。
+密碼、通行碼全遮（○○○○○○○○）；學校、單位名不遮；人名改 O（王O明）。
 
 執行方式（在 repo 根目錄）：
     PYTHONIOENCODING=utf-8 python -m unittest discover -s tests -v
@@ -26,7 +26,7 @@ O = MASK_CHAR
 
 
 class ShouldMask(unittest.TestCase):
-    """每種已知樣式都要被「留頭尾、遮中間」（密碼留前 2 字）。"""
+    """每種已知樣式都要被「留頭尾、遮中間」（密碼全遮）。"""
 
     def test_taiwan_id(self):
         self.assertEqual(mask_sensitive("身分證 A123456789 請查收"), "身分證 A123" + O * 4 + "89 請查收")
@@ -56,10 +56,10 @@ class ShouldMask(unittest.TestCase):
         self.assertEqual(mask_sensitive("帳號 012-34-567890-1"), "帳號 012-34-5○○○○0-1")
 
     def test_password_label_keeps_label_masks_whole_value(self):
-        # 密碼、通行碼：留前 2 字（Aa○○○○○○，2026-10-20 定版）；密碼內容不寫進摘要是報告端規則
-        self.assertEqual(mask_sensitive("密碼：Abc12345"), "密碼：Ab" + O * 6)
-        self.assertEqual(mask_sensitive("password: p@ss-word!"), "password: p@" + O * 8)
-        self.assertEqual(mask_sensitive("通行碼=Xyz98765"), "通行碼=Xy" + O * 6)
+        # 密碼、通行碼：全遮（2026-10-24 芷均定：摘要上不要有任何密碼詳情）；密碼內容不寫進摘要是報告端規則
+        self.assertEqual(mask_sensitive("密碼：Abc12345"), "密碼：" + O * 8)
+        self.assertEqual(mask_sensitive("password: p@ss-word!"), "password: " + O * 10)
+        self.assertEqual(mask_sensitive("通行碼=Xyz98765"), "通行碼=" + O * 8)
 
     def test_account_label_non_email_value(self):
         self.assertEqual(mask_sensitive("帳號：s10912345"), "帳號：s10○○○345")   # 帳號留頭尾
@@ -83,12 +83,12 @@ class ShouldMask(unittest.TestCase):
         self.assertEqual(mask_sensitive("C119000123@example-u.edu.tw"), "C119○○○123@example-u.edu.tw")
 
     def test_password_that_looks_like_email_still_masked(self):
-        self.assertEqual(mask_sensitive("密碼：me@mail.com"), "密碼：me" + O * 9)
+        self.assertEqual(mask_sensitive("密碼：me@mail.com"), "密碼：" + O * 11)
 
     def test_multiple_in_one_text(self):
         src = "學生 A123456789，手機 0912345678，密碼：abc123，請協助。"
         out = mask_sensitive(src)
-        self.assertEqual(out, "學生 A123○○○○89，手機 0912○○○○78，密碼：ab○○○○，請協助。")
+        self.assertEqual(out, "學生 A123○○○○89，手機 0912○○○○78，密碼：○○○○○○，請協助。")
         self.assertIn("學生 ", out)
         self.assertIn("請協助", out)
         self.assertIn("密碼：", out)

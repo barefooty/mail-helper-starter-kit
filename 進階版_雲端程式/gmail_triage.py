@@ -239,8 +239,8 @@ def _blot(text):
 
 
 def _secret(text):
-    """密碼、通行碼：留前 2 字、其餘遮（Aa○○○○○○；2026-10-20 定版）。密碼內容另由報告端規則禁止寫進摘要。"""
-    return text[:2] + MASK_CHAR * max(0, len(text) - 2)
+    """密碼、通行碼：全遮（○○○○○○○○；2026-10-24 芷均定「摘要上不要有任何密碼詳情」，原 10-20 版留前兩字；定版）。密碼內容另由報告端規則禁止寫進摘要。"""
+    return MASK_CHAR * len(text)
 
 
 def _partial(text):
@@ -284,12 +284,12 @@ def _mask_cred(m):
     if _RE_EMAIL_VALUE.match(value) and not _RE_SECRET_LABEL.search(label):
         return m.group(0)
     if _RE_SECRET_LABEL.search(label):
-        return label + _secret(value)    # 密碼、通行碼：留前 2 字
+        return label + _secret(value)    # 密碼、通行碼：全遮
     return label + _partial(value)      # 帳號：留頭尾
 
 
 def mask_sensitive(text):
-    """把文字中的已知個資樣式「留頭尾、遮中間」（密碼留前 2 字），其餘原樣回傳。
+    """把文字中的已知個資樣式「留頭尾、遮中間」（密碼全遮），其餘原樣回傳。
 
     會遮：台灣身分證字號、手機（09 開頭 10 碼）、市話（含分機）、10 碼以上連續數字、
           信用卡 4-4-4-4、連字號分組且總位數 ≥10 的數字、「學號」後面的 6–10 碼、
